@@ -2,22 +2,27 @@
 # -*- coding: utf-8 -*-
 
 import time, os, socket
-import json
+import json,platform
 
 metric = ['usr', 'nice', 'sys', 'idle', 'iowait', 'irq', 'soft', 'steal', 'guest']
 host = socket.gethostname()
+sysType, sysVer, scode = platform.dist()
 
 def get_cpu_core_stat(num):
   data = []
   for x in range(num):
     try:
       handler = os.popen("cat /proc/stat | grep cpu%d " % x)
-    except:
+    except Exception,e:
       continue
 
     output = handler.read().strip().split()[1:]
+    print output
 
-    if len(output) != 9:
+    argLen = 8
+    if sysType == 'centos' and float(sysVer[0:2]) < 7.0:
+        argLen = 9
+    if len(output) != argLen:
       continue
 
     index=0
